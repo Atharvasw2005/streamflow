@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: streaming-app-backend
+
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+
+  jpa:
+      hibernate:
+        ddl-auto: update
+
+      show-sql: true
+
+      properties:
+        hibernate:
+          format_sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 1000MB
+      max-request-size: 1000MB
+
+
+files:
+  video: videos/
+  hls: videos_hls/

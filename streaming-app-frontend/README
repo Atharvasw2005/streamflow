@@ -1,0 +1,37 @@
+Dependency 
+
+React.js
+tailwindcss
+React-Toastify for toasted notification 
+axiox for backend and frontend connection 
+lucide-react for icons
+FLow bit react for ready mate component
+
+
+ 
+1. Progressive Download
+Video starts playing while the rest is downloading.
+
+Disadvantage:
+
+ Bankwidth Usage --> Full File Download
+                    Network Congestion
+
+ Poor User Experience --> Video Buffering
+
+ Wastage Of Resources 
+
+ Wastage of Data
+
+
+2. HTTP Range Streaming
+
+Client requests only the required part of the video using the HTTP Range header. You can jump to any time without downloading the whole file.
+
+Range Header = Start + end bytes Range
+
+
+
+
+
+

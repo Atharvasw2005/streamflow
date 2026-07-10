@@ -30,7 +30,7 @@ function App() {
 
         <div className="flex ">
        
-              <VideoPlayer src="http://localhost:8080/api/v1/video/1/master.m3u8" />
+              <VideoPlayer src="https://d28cb1zysmj9mp.cloudfront.net/videos/1/master.m3u8" />
           
           <VideoUpload />
         </div>

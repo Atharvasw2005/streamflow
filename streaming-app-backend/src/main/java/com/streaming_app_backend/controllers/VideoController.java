@@ -202,88 +202,115 @@ public class VideoController {
     }
 
 
+    /// This Part are not Currently Required Because We now store original video File  and also Hsl file in S3 and CloudFront for CDN
+    ///CloudFront use kela mhanun aaplayala ha controller chi garag nahi aahe
+    /// if we not used CloudFront when we need to modify this Controller for Accessing The file from S3 now it works for local disk file
 
-    //master.m2u8 file
-
-    @Value("${files.hls}")
-    private String videoHls;
-
-
-    @GetMapping(
-            value = "/{videoId}/master.m3u8",
-            produces = "application/vnd.apple.mpegurl"
-    )
-    public ResponseEntity<Resource> serveMasterFile(
-            @PathVariable String videoId
-    )
-    {
-
-        ///Creating Path;
-        Path path = Paths.get(videoHls, videoId, "master.m3u8");
-
-        if(!Files.exists(path)){
-            return ResponseEntity.notFound().build();
-        }
-
-        Resource resource = new FileSystemResource(path);
+//    Without CloudFront: React → Spring Boot → S3
+//    With CloudFront: React → CloudFront → S3
 
 
-        return ResponseEntity.ok()
-                .body(resource);
+//    Upload
+//            User
+// │
+//         ▼
+//    Spring Boot
+// │
+//         ├── Save Metadata (MySQL)
+// ├── FFmpeg Transcoding
+// └── Upload MP4 + HLS
+//            │
+//                    ▼
+//    Amazon S3
+//            │
+//                    ▼
+//    CloudFront CDN
+//            │
+//                    ▼
+//    React + Hls.js Player
 
-    }
-
-     //server hls playlist.m2u8
-
-    @GetMapping(
-            value = "/{videoId}/{quality}/playlist.m3u8",
-            produces = "application/vnd.apple.mpegurl"
-    )
-    public ResponseEntity<Resource> serveplaylistFile(
-            @PathVariable String videoId,
-            @PathVariable String quality
-
-    )
-    {
-
-        ///Creating Path;
-        Path path = Paths.get(videoHls, videoId,  quality,"playlist.m3u8");
-
-        if(!Files.exists(path)){
-            return ResponseEntity.notFound().build();
-
-
-        }
-
-        Resource resource = new FileSystemResource(path);
-
-
-        return ResponseEntity.ok()
-                .body(resource);
-
-    }
-
-    @GetMapping(
-            value = "/{videoId}/{quality}/{segment}.ts",
-            produces = "video/mp2t"
-    )
-    public ResponseEntity<Resource> serveSegmentFile(
-            @PathVariable String videoId,
-            @PathVariable String quality,
-            @PathVariable String segment
-    ){
-        ///Creating Path;
-        Path path = Paths.get(videoHls, videoId, quality, segment+".ts");
-
-        if(!Files.exists(path)){
-            return ResponseEntity.notFound().build();        }
-
-        Resource resource = new FileSystemResource(path);
-
-
-        return ResponseEntity.ok()
-                .body(resource);
-    }
+//
+//    //master.m2u8 file
+//
+//    @Value("${files.hls}")
+//    private String videoHls;
+//
+//
+//    @GetMapping(
+//            value = "/{videoId}/master.m3u8",
+//            produces = "application/vnd.apple.mpegurl"
+//    )
+//    public ResponseEntity<Resource> serveMasterFile(
+//            @PathVariable String videoId
+//    )
+//    {
+//
+//        ///Creating Path;
+//        Path path = Paths.get(videoHls, videoId, "master.m3u8");
+//
+//        if(!Files.exists(path)){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        Resource resource = new FileSystemResource(path);
+//
+//
+//        return ResponseEntity.ok()
+//                .body(resource);
+//
+//    }
+//
+//     //server hls playlist.m2u8
+//
+//    @GetMapping(
+//            value = "/{videoId}/{quality}/playlist.m3u8",
+//            produces = "application/vnd.apple.mpegurl"
+//    )
+//    public ResponseEntity<Resource> serveplaylistFile(
+//            @PathVariable String videoId,
+//            @PathVariable String quality
+//
+//    )
+//    {
+//
+//        ///Creating Path;
+//        Path path = Paths.get(videoHls, videoId,  quality,"playlist.m3u8");
+//
+//        if(!Files.exists(path)){
+//            return ResponseEntity.notFound().build();
+//
+//
+//        }
+//
+//        Resource resource = new FileSystemResource(path);
+//
+//
+//        return ResponseEntity.ok()
+//                .body(resource);
+//
+//    }
+//
+//    @GetMapping(
+//            value = "/{videoId}/{quality}/{segment}.ts",
+//            produces = "video/mp2t"
+//    )
+//    public ResponseEntity<Resource> serveSegmentFile(
+//            @PathVariable String videoId,
+//            @PathVariable String quality,
+//            @PathVariable String segment
+//    ){
+//        ///Creating Path;
+//        Path path = Paths.get(videoHls, videoId, quality, segment+".ts");
+//
+//        if(!Files.exists(path)){
+//            return ResponseEntity.notFound().build();        }
+//
+//        Resource resource = new FileSystemResource(path);
+//
+//
+//        return ResponseEntity.ok()
+//                .body(resource);
+//    }
 
 
 }

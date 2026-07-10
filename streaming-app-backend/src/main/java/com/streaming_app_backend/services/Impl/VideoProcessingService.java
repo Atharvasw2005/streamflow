@@ -4,12 +4,16 @@ package com.streaming_app_backend.services.Impl;
 import com.streaming_app_backend.entities.Video;
 import com.streaming_app_backend.entities.VideoStatus;
 import com.streaming_app_backend.repositories.VideoRepository;
+import com.streaming_app_backend.services.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,12 +26,15 @@ public class VideoProcessingService {
     @Autowired
     private VideoRepository videoRepository;
 
+    @Autowired
+    private S3ServiceImpl s3Service;
+
 
     @Value("${files.hls}")
     private String hlsFolder;
 
     @Async("videoExecutor")
-    public void processVideo(long videoId) {
+    public void processVideo(long videoId) throws IOException {
 
         Video video = videoRepository.findById(videoId).get();
 
@@ -129,16 +136,26 @@ public class VideoProcessingService {
             int exitCode = process.waitFor();
 
             if (exitCode == 0) {
+                // Upload Original Video
+                String mp4Key = s3Service.uploadFile(inputVideo, video.getVideo_id());
 
+// Upload HLS Folder
+                String hlsKey = s3Service.uploadHlsFolder(
+                        outputFolder,
+                        video.getVideo_id()
+                );
+
+// Save HLS URL
+                video.setFilePath(hlsKey);
                 video.setStatus(VideoStatus.COMPLETED);
                 videoRepository.save(video);
-
                 System.out.println("Video Processed Successfully");
 
-            } else {
+            }
+            else {
 
-                videoRepository.delete(video);
-
+                video.setStatus(VideoStatus.FAILED);
+                videoRepository.save(video);
                 System.out.println("FFmpeg Failed. Exit Code = " + exitCode);
             }
 
@@ -147,9 +164,16 @@ public class VideoProcessingService {
 
         } catch (Exception e) {
 
-            videoRepository.delete(video);
-
+            video.setStatus(VideoStatus.FAILED);
+            videoRepository.save(video);
             throw new RuntimeException(e);
+        }
+        finally{
+            // Delete MP4
+            Files.deleteIfExists(inputVideo);
+
+// Delete HLS Folder
+            FileSystemUtils.deleteRecursively(outputFolder);
         }
 
 

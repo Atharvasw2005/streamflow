@@ -26,6 +26,15 @@ spring:
       max-file-size: 1000MB
       max-request-size: 1000MB
 
+aws:
+  s3:
+    bucket-name: ${AWS_BUCKET_NAME}
+    region: ${AWS_REGION}
+    access-key: ${AWS_ACCESS_KEY_ID}
+    secret-key: ${AWS_SECRET_ACCESS_KEY}
+
+
+
 
 files:
   video: videos/

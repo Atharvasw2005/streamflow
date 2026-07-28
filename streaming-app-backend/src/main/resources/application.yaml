@@ -39,3 +39,23 @@ aws:
 files:
   video: videos/
   hls: videos_hls/
+
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+rabbitmq:
+  queue:
+    name: Java_Streaming_Queue
+  exchange:
+    name: Java_Streaming_Exchange
+  key:
+    value: Java_Streaming_routing_key_streaming
+
+
+jwt:
+  secret: mySuperSecretKeyForJwtAuthentication123456789
+  expiration: 86400000

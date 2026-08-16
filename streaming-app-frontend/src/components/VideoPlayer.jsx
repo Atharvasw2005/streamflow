@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import Hls from "hls.js";
 
-function VideoPlayer({ src }) {
+function VideoPlayer({ src, className }) {
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
 
@@ -62,10 +62,7 @@ function VideoPlayer({ src }) {
       controls
       autoPlay
       playsInline
-      style={{
-        width: "auto",
-        maxWidth: "auto",
-      }}
+      className={className || "h-full w-full"}
     />
   );
 }

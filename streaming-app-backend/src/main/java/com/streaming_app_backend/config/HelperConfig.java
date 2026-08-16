@@ -15,23 +15,4 @@ public class HelperConfig {
     public ModelMapper getModelMapper() {
         return new ModelMapper();
     }
-
-//    @Bean("videoExecutor")
-//    public Executor videoExecutor() {
-//
-//        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-//
-//        executor.setCorePoolSize(4);
-//        executor.setMaxPoolSize(8);
-//        executor.setQueueCapacity(20);
-//        executor.setThreadNamePrefix("video-");
-//
-//        // Wait for running tasks before shutdown
-//        executor.setWaitForTasksToCompleteOnShutdown(true);
-//        executor.setAwaitTerminationSeconds(600);
-//
-//        executor.initialize();
-//
-//        return executor;
-//    }
 }

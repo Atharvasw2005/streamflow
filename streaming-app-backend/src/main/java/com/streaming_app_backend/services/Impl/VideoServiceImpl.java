@@ -118,9 +118,9 @@ public class VideoServiceImpl implements VideoService {
         }
         catch(Exception ex)
         {
-            System.err.println(ex.getMessage());
+            ex.printStackTrace();
+            throw new RuntimeException("Video upload failed", ex);
         }
-        return null;
     }
 
     //get video by id

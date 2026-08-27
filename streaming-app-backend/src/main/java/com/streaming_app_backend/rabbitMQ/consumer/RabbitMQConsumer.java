@@ -24,6 +24,10 @@ public class RabbitMQConsumer {
     @RabbitListener(queues = {"${rabbitmq.queue.name}"})
     public void consume(Long videoId) throws IOException {
         LOGGER.error("Received video id {}", videoId);
-        videoProcessingService.processVideo(videoId);
+        try {
+            videoProcessingService.processVideo(videoId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

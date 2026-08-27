@@ -1,6 +1,7 @@
 package com.streaming_app_backend.services.Impl;
 
 import com.streaming_app_backend.Dtos.security.Registration;
+import com.streaming_app_backend.entities.Roles;
 import com.streaming_app_backend.entities.users;
 import com.streaming_app_backend.repositories.UsersRepository;
 import com.streaming_app_backend.services.UserService;
@@ -44,6 +45,7 @@ public class UserServiceImpl implements UserService {
 
         newUser.setUsername(user.username());
         newUser.setPassword( passwordEncoder.encode(user.password()));
+        newUser.setRole(Roles.ROLE_USER);
 
         usersRepository.save(newUser);
 

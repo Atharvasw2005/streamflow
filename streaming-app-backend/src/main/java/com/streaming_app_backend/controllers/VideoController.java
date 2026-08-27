@@ -49,7 +49,7 @@ public class VideoController {
                 .build();
 
 
-        VideoUploadResponseDto response = videoService.saveVideo( request, file);
+        VideoUploadResponseDto response = videoService.saveVideo(request, file);
          response.setMessage("Video Created Successfully");
 
 
@@ -68,6 +68,8 @@ public class VideoController {
     public List<Video> getAllVideo(){
         return videoService.getVideos();
     }
+
+
 
 
 // Stream Video Progressive   http://localhost:8080/api/v1/video/stream

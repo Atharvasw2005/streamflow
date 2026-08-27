@@ -24,7 +24,8 @@ public class Video {
     private String description;
     private String contentType;
     private Instant created_at = Instant.now() ;
-    private String filePath;
+    private String filePath;// original file path or object key
+    private String hlsUrl;     // final manifest URL, e.g. S3 URL
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

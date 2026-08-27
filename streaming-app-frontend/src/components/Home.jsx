@@ -1,31 +1,57 @@
-import VideoUpload from "./VideoUploadComponent";
-import VideoPlayer from "./VideoPlayer";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import VideoGrid from "./VideoGrid";
+import { getVideos } from "../services/videoService";
 
 function Home() {
+  const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const loadVideos = async () => {
+      try {
+        setError("");
+        const allVideos = await getVideos();
+        setVideos(allVideos);
+      } catch (requestError) {
+        console.error("Failed to load home videos:", requestError);
+        setError("Could not load uploaded videos from backend.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVideos();
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-950 to-black">
-      {/* Navbar */}
-      <nav className="h-16 border-b border-gray-800 flex items-center px-10">
-        <h1 className="text-2xl font-bold text-blue-500">StreamFlow</h1>
-      </nav>
-
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <h1 className="text-5xl font-bold text-center text-white">
-          Upload Your Video
-        </h1>
-
-        <p className="text-center text-gray-400 mt-3">
-          Store and stream videos securely.
+    <div className="space-y-8">
+      <section className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+        <h1 className="text-3xl font-bold text-white">Welcome to StreamFlow</h1>
+        <p className="mt-2 text-slate-400">
+          Watch videos uploaded by users and upload your own content.
         </p>
 
-        {/* Video Section */}
-        <div className="flex gap-6 mt-10">
-          <VideoPlayer src="https://d28cb1zysmj9mp.cloudfront.net/videos/9/master.m3u8" />
-
-          <VideoUpload />
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link
+            to="/upload"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+          >
+            Upload Video
+          </Link>
         </div>
-      </div>
+      </section>
+
+      <section className="space-y-4 rounded-xl border border-slate-800 bg-slate-900 p-6">
+        <h2 className="text-lg font-semibold text-white">Uploaded Videos</h2>
+        {error && (
+          <div className="rounded-lg border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
+            {error}
+          </div>
+        )}
+        <VideoGrid videos={videos} loading={loading} />
+      </section>
     </div>
   );
 }

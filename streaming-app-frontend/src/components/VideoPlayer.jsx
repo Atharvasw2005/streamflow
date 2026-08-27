@@ -1,73 +1,107 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
 
-function VideoPlayer({ src }) {
+const VideoPlayer = ({ src, videoUrl, token }) => {
   const videoRef = useRef(null);
-  const hlsRef = useRef(null);
+  const [error, setError] = useState("");
+  const resolvedVideoUrl = src || videoUrl;
 
   useEffect(() => {
-    const video = videoRef.current;
+    setError("");
 
+    if (!resolvedVideoUrl) return;
+
+    const video = videoRef.current;
     if (!video) return;
 
-    // Browser supports HLS.js
+    let hls;
+
     if (Hls.isSupported()) {
-      const hls = new Hls({
-        debug: true,
+      hls = new Hls({
+        liveSyncDurationCount: 3,
+        backBufferLength: 90,
+        xhrSetup: (xhr) => {
+          if (token) {
+            xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+          }
+        },
+        debug: false,
       });
 
-      hlsRef.current = hls;
+      hls.on(Hls.Events.ERROR, (_, data) => {
+        console.error("HLS error:", data);
 
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              setError("Network error while loading video.");
+              break;
+
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              setError("Media error while playing video.");
+              break;
+
+            default:
+              setError("Video playback failed.");
+              break;
+          }
+        }
+      });
+
+      hls.loadSource(resolvedVideoUrl);
       hls.attachMedia(video);
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = resolvedVideoUrl;
 
-      hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-        console.log("Media Attached");
-        hls.loadSource(src);
-      });
-
-      hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-        console.log("Manifest Parsed");
-        console.log("Available Qualities:", data.levels);
-
+      const handleLoadedMetadata = () => {
         video.play().catch((err) => {
-          console.log("Autoplay blocked:", err);
+          console.error("Autoplay failed:", err);
         });
-      });
+      };
 
-      hls.on(Hls.Events.ERROR, (event, data) => {
-        console.log("HLS ERROR");
-        console.log(data);
-      });
+      video.addEventListener("loadedmetadata", handleLoadedMetadata);
 
       return () => {
-        hls.destroy();
+        video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        video.removeAttribute("src");
+        video.load();
       };
-    }
-
-    // Safari
-    if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = src;
-
-      video.addEventListener("loadedmetadata", () => {
-        video.play().catch(() => {});
-      });
     } else {
-      console.log("HLS is not supported in this browser");
+      setError("This browser does not support HLS playback.");
     }
-  }, [src]);
+
+    return () => {
+      if (hls) {
+        hls.destroy();
+      }
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+    };
+  }, [resolvedVideoUrl, token]);
 
   return (
-    <video
-      ref={videoRef}
-      controls
-      autoPlay
-      playsInline
+    <div
       style={{
-        width: "auto",
-        maxWidth: "auto",
+        width: "100%",
+        maxWidth: "960px",
+        margin: "0 auto",
       }}
-    />
+    >
+      <video
+        ref={videoRef}
+        controls
+        playsInline
+        style={{
+          width: "100%",
+          borderRadius: "10px",
+          background: "#000",
+        }}
+      />
+
+      {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+    </div>
   );
-}
+};
 
 export default VideoPlayer;
